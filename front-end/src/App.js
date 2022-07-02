@@ -40,11 +40,11 @@ function App() {
             <p>Golden Gate is Amazing</p>
             <label>Rating</label>
             <div className="starts">
-              <StarIcon />
-              <StarIcon />
-              <StarIcon />
-              <StarIcon />
-              <StarIcon />
+              <StarIcon className="star" />
+              <StarIcon className="star" />
+              <StarIcon className="star" />
+              <StarIcon className="star" />
+              <StarIcon className="star" />
             </div>
             <label>Information</label>
             <span className="username">
