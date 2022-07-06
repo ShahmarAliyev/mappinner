@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
-
+const cors = require("cors");
 const pinRouter = require("./routes/pin.router.js");
 const userRouter = require("./routes/user.router.js");
 
 app.use(express.json());
-
+app.use(cors());
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
