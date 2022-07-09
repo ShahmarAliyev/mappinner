@@ -17,7 +17,7 @@ export default function Login({ setShowLogin, setCurrentUsername, myStorage }) {
     };
     try {
       const res = await axios.post(
-        "http://localhost:8800/api/users/login",
+        "https://map-pinner.herokuapp.com/api/users/login",
         user
       );
       setCurrentUsername(res.data.username);

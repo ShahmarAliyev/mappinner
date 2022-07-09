@@ -46,7 +46,9 @@ function App() {
   useEffect(() => {
     const getPins = async () => {
       try {
-        const res = await axios.get("http://localhost:8800/api/pins");
+        const res = await axios.get(
+          "https://map-pinner.herokuapp.com/api/pins"
+        );
         setPins(res.data);
       } catch (error) {
         console.log(error);
