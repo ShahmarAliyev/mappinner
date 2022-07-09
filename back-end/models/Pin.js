@@ -6,6 +6,12 @@ const PinSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
+    title: {
+      type: String,
+      required: true,
+      min: 3,
+      max: 60,
+    },
     desc: {
       type: String,
       require: true,

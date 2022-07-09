@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
-
+const cors = require("cors");
 const pinRouter = require("./routes/pin.router.js");
 const userRouter = require("./routes/user.router.js");
 
 app.use(express.json());
-
+app.use(cors());
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
@@ -21,6 +21,12 @@ mongoose
 app.use("/api/pins/", pinRouter);
 app.use("/api/users/", userRouter);
 
-app.listen(8800, () => {
+app.use(express.static(path.join(__dirname, "/front-end/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "/front-end/build", "index.html"));
+});
+
+app.listen(process.env.PORT || 8800, () => {
   console.log("Server Started");
 });
