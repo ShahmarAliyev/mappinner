@@ -1,20 +1,32 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./App.css";
+
+import Register from "./components/Register";
+import Login from "./components/Login";
 import { useSelector, useDispatch } from "react-redux";
 import { setPinId } from "./redux/pinSlice";
 
-import axios from "axios";
-import "./App.css";
+import * as timeago from "timeago.js";
 import Map, { Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import * as timeago from "timeago.js";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
+
 const mapboxToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 function App() {
-  const currentUser = "Shahmar";
+  const myStorage = window.localStorage;
+  const [currentUsername, setCurrentUsername] = useState(
+    myStorage.getItem("user")
+  );
   const pinId = useSelector((state) => state.pin.pinId);
   const dispatch = useDispatch();
+  const [showRegister, setShowRegister] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [title, setTitle] = useState(null);
+  const [desc, setDesc] = useState(null);
+  const [rating, setRating] = useState(null);
   const [pins, setPins] = useState([]);
   const [newPlace, setNewPlace] = useState(null);
   const [viewState, setViewState] = useState({
@@ -52,6 +64,30 @@ function App() {
     console.log(newPlace);
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newPin = {
+      username: currentUsername,
+      title,
+      desc,
+      rating,
+      lat: newPlace.lat,
+      long: newPlace.lng,
+    };
+
+    try {
+      const res = await axios.post("/pins", newPin);
+      setPins([...pins, res.data]);
+      setNewPlace(null);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUsername(null);
+    myStorage.removeItem("user");
+  };
   return (
     <div className="App">
       <Map
@@ -68,10 +104,18 @@ function App() {
         {pins.map((pin) => {
           return (
             <React.Fragment key={pin._id}>
-              <Marker longitude={pin.long} latitude={pin.lat} anchor="bottom">
+              <Marker
+                longitude={pin.long}
+                latitude={pin.lat}
+                anchor="bottom"
+                offsetLeft={-3.5 * viewState.zoom}
+                offsetTop={-7 * viewState.zoom}
+              >
                 <LocationOnIcon
                   style={{ fontSize: viewState.zoom * 7, cursor: "pointer" }}
-                  sx={{ color: pin.username === currentUser ? "red" : "blue" }}
+                  sx={{
+                    color: pin.username === currentUsername ? "red" : "blue",
+                  }}
                   onClick={() => handleIconClick(pin._id, pin.lat, pin.long)}
                 />
               </Marker>
@@ -94,11 +138,7 @@ function App() {
                     <p>{pin.desc}</p>
                     <label>Rating</label>
                     <div className="starts">
-                      <StarIcon className="star" />
-                      <StarIcon className="star" />
-                      <StarIcon className="star" />
-                      <StarIcon className="star" />
-                      <StarIcon className="star" />
+                      {Array(pin.rating).fill(<StarIcon className="star" />)}
                     </div>
                     <label>Information</label>
                     <span className="username">
@@ -127,14 +167,28 @@ function App() {
             }}
           >
             <div className="card">
-              <form>
+              <form onSubmit={handleSubmit}>
                 <label>Title</label>
-                <input placeholder="Where is it?" />
+                <input
+                  placeholder="Where is it?"
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                />
                 <label>Review</label>
-                <textarea placeholder="What was memorable?" />
+                <textarea
+                  placeholder="What was memorable?"
+                  onChange={(e) => {
+                    setDesc(e.target.value);
+                  }}
+                />
 
                 <label>Rating</label>
-                <select>
+                <select
+                  onChange={(e) => {
+                    setRating(e.target.value);
+                  }}
+                >
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
@@ -148,7 +202,40 @@ function App() {
             </div>
           </Popup>
         )}
-        newPlace
+        {currentUsername ? (
+          <button className="button logout" onClick={handleLogout}>
+            Log Out
+          </button>
+        ) : (
+          <div className="buttons">
+            <button
+              className="button login"
+              onClick={() => {
+                setShowLogin(true);
+                setShowRegister(false);
+              }}
+            >
+              Login
+            </button>
+            <button
+              className="button register"
+              onClick={() => {
+                setShowRegister(true);
+                setShowLogin(false);
+              }}
+            >
+              Register
+            </button>
+          </div>
+        )}
+        {showRegister && <Register setShowRegister={setShowRegister} />}
+        {showLogin && (
+          <Login
+            setShowLogin={setShowLogin}
+            myStorage={myStorage}
+            setCurrentUsername={setCurrentUsername}
+          />
+        )}
       </Map>
     </div>
   );
