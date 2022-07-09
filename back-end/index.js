@@ -21,10 +21,10 @@ mongoose
 app.use("/api/pins/", pinRouter);
 app.use("/api/users/", userRouter);
 
-app.use(express.static(path.join(__dirname, "/client/build")));
+app.use(express.static(path.join(__dirname, "/front-end/build")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "/client/build", "index.html"));
+  res.sendFile(path.join(__dirname, "/front-end/build", "index.html"));
 });
 
 app.listen(process.env.PORT || 8800, () => {
